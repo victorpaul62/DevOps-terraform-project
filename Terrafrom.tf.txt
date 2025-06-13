@@ -77,3 +77,38 @@ resource "aws_instance" "web_server" {
     Name = "DevOps-Nginx-Server"
   }
 }
+
+
+
+
+sudo yum update -y
+sudo yum install java-1.8.0-openjdk -y
+
+# Add Jenkins repo
+sudo wget -O /etc/yum.repos.d/jenkins.repo \
+    https://pkg.jenkins.io/redhat-stable/jenkins.repo
+sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io.key
+
+# Install Jenkins
+sudo yum install jenkins -y
+
+# Start Jenkins
+sudo systemctl start jenkins
+sudo systemctl enable jenkins
+
+
+
+
+aws cloudwatch put-metric-alarm \
+  --alarm-name "High-CPU-Alarm" \
+  --metric-name CPUUtilization \
+  --namespace AWS/EC2 \
+  --statistic Average \
+  --period 60 \
+  --threshold 80 \
+  --comparison-operator GreaterThanThreshold \
+  --evaluation-periods 2 \
+  --alarm-actions arn:aws:sns:your-topic-arn \
+  --dimensions Name=InstanceId,Value=i-xxxxxxxxxxxxxx \
+  --unit Percent
+
